@@ -1,0 +1,58 @@
+[
+  {
+    "id": "sensex",
+    "name": "SENSEX",
+    "value": 72845.32,
+    "change": -1423.56,
+    "changePercent": -1.92,
+    "trend": "down"
+  },
+  {
+    "id": "nifty",
+    "name": "NIFTY 50",
+    "value": 22187.90,
+    "change": -432.15,
+    "changePercent": -1.91,
+    "trend": "down"
+  },
+  {
+    "id": "banknifty",
+    "name": "BANK NIFTY",
+    "value": 46823.45,
+    "change": -876.30,
+    "changePercent": -1.84,
+    "trend": "down"
+  },
+  {
+    "id": "gold",
+    "name": "GOLD",
+    "value": 68450.00,
+    "change": -7000.00,
+    "changePercent": -9.28,
+    "trend": "down"
+  },
+  {
+    "id": "silver",
+    "name": "SILVER",
+    "value": 78200.00,
+    "change": -14000.00,
+    "changePercent": -15.19,
+    "trend": "down"
+  },
+  {
+    "id": "crude",
+    "name": "CRUDE OIL",
+    "value": 95.42,
+    "change": 4.87,
+    "changePercent": 5.38,
+    "trend": "up"
+  },
+  {
+    "id": "usdinr",
+    "name": "USD/INR",
+    "value": 86.45,
+    "change": 0.82,
+    "changePercent": 0.96,
+    "trend": "up"
+  }
+]
