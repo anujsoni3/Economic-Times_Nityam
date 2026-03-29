@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { fetchMarketData } from '../../api';
+import { useLanguage } from '../../context/LanguageContext';
 import './MarketWidget.css';
 
 export default function MarketWidget() {
   const [data, setData] = useState([]);
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetchMarketData()
@@ -16,8 +18,8 @@ export default function MarketWidget() {
   return (
     <aside className="market-widget">
       <h3 className="market-widget-title">
-        📈 Market Watch
-        <span className="live-badge">LIVE</span>
+        <i className="bi bi-graph-up"></i> {t('marketWatch')}
+        <span className="live-badge">{t('live')}</span>
       </h3>
 
       {data.map((item) => (

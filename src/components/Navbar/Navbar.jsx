@@ -1,24 +1,29 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { fetchMarketData } from '../../api';
+import { useLanguage } from '../../context/LanguageContext';
+import LanguageSwitcher from '../LanguageSwitcher/LanguageSwitcher';
 import './Navbar.css';
-
-const NAV_LINKS = [
-  { to: '/', label: 'Home' },
-  { to: '/category/markets', label: 'Markets' },
-  { to: '/category/industry', label: 'Industry' },
-  { to: '/category/tech', label: 'Tech' },
-  { to: '/category/economy', label: 'Economy' },
-  { to: '/category/wealth', label: 'Wealth' },
-  { to: '/category/startups', label: 'Startups' },
-  { to: '/category/politics', label: 'Politics' },
-  { to: '/my-et', label: 'My ET', highlight: true },
-];
 
 export default function Navbar() {
   const location = useLocation();
   const [marketData, setMarketData] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const { t } = useLanguage();
+
+  const NAV_LINKS = [
+    { to: '/', label: t('home') },
+    { to: '/category/markets', label: t('markets') },
+    { to: '/category/industry', label: t('industry') },
+    { to: '/category/tech', label: t('tech') },
+    { to: '/category/economy', label: t('economy') },
+    { to: '/category/wealth', label: t('wealth') },
+    { to: '/category/startups', label: t('startups') },
+    { to: '/category/politics', label: t('politics') },
+    { to: '/story-arc', label: t('storyArc') },
+    { to: '/news-navigator', label: t('newsNavigator') },
+    { to: '/my-et', label: t('myET'), highlight: true },
+  ];
 
   useEffect(() => {
     fetchMarketData()
@@ -40,19 +45,17 @@ export default function Navbar() {
 
         <div className="navbar-actions">
           <div className="navbar-search">
-            <span className="navbar-search-icon">🔍</span>
+            <i className="bi bi-search navbar-search-icon"></i>
             <input
               type="text"
-              placeholder="Search news..."
+              placeholder={t('search')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
-          {/* Vernacular Engine placeholder */}
-          <button className="lang-selector" title="Language — Vernacular Engine integration slot">
-            🌐 EN ▾
-          </button>
+          {/* Language Switcher — Vernacular Engine */}
+          <LanguageSwitcher />
         </div>
       </div>
 
@@ -76,7 +79,7 @@ export default function Navbar() {
         <div className="market-ticker">
           <div className="ticker-label">
             <span className="ticker-dot"></span>
-            LIVE
+            {t('live')}
           </div>
           <div className="ticker-track">
             <div className="ticker-content">

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { fetchArticles } from '../../api';
+import { useLanguage } from '../../context/LanguageContext';
 import HeroSection from '../../components/HeroSection/HeroSection';
 import NewsFeed from '../../components/NewsFeed/NewsFeed';
 import MarketWidget from '../../components/MarketWidget/MarketWidget';
@@ -7,22 +8,34 @@ import FeatureSlot from '../../components/FeatureSlot/FeatureSlot';
 import './Home.css';
 
 export default function Home() {
+  const { language, t } = useLanguage();
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Fetch articles whenever language changes (Hybrid Native Fetching)
   useEffect(() => {
-    fetchArticles()
+    let cancelled = false;
+    setLoading(true);
+
+    fetchArticles(null, language)
       .then((data) => {
+        if (cancelled) return;
         setArticles(data);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
-  }, []);
+      .catch((err) => {
+        if (cancelled) return;
+        console.error('Fetch error:', err);
+        setLoading(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [language]);
 
   if (loading) {
     return (
       <div className="home-page" style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <p style={{ color: 'var(--text-tertiary)', fontSize: 'var(--fs-lg)' }}>Loading news...</p>
+        <p style={{ color: 'var(--text-tertiary)', fontSize: 'var(--fs-lg)' }}>{t('loadingNews')}</p>
       </div>
     );
   }
@@ -39,46 +52,44 @@ export default function Home() {
         <div className="home-sidebar">
           <MarketWidget />
 
-          {/* My ET — Personalized Newsroom placeholder */}
           <FeatureSlot
             featureId="my-et"
-            icon="👤"
-            title="My ET — Personalized Newsroom"
-            description="Your personalized news feed tailored to your interests, portfolio, and professional role. This slot is ready for integration."
+            icon="ET"
+            title={t('personalizedNewsroom')}
+            description={t('personalizedDesc')}
           />
         </div>
       </div>
 
-      {/* All Feature Slots */}
       <div className="home-features">
         <div className="features-header">
-          <h2>🤖 AI-Powered Features</h2>
-          <p>Integration slots for each teammate's AI feature</p>
+          <h2>{t('aiFeatures')}</h2>
+          <p>{t('featureSlots')}</p>
         </div>
         <div className="features-grid">
           <FeatureSlot
             featureId="news-navigator"
-            icon="🧠"
-            title="News Navigator — Interactive Briefings"
-            description="AI-synthesized deep briefings from multiple articles on a single topic, with follow-up questions."
+            icon="AI"
+            title={t('newsNavigator')}
+            description={t('featureSlots')}
           />
           <FeatureSlot
             featureId="video-studio"
-            icon="🎬"
+            icon="▶"
             title="AI News Video Studio"
             description="Transform any article into a broadcast-quality 60–120 second video with AI narration and data visuals."
           />
           <FeatureSlot
             featureId="story-arc"
-            icon="📊"
-            title="Story Arc Tracker"
+            icon="◈"
+            title={t('storyArc')}
             description="Interactive timelines, key player maps, sentiment analysis, and 'what to watch next' predictions."
           />
           <FeatureSlot
             featureId="vernacular"
-            icon="🌐"
-            title="Vernacular Business News Engine"
-            description="Culturally-adapted translation into Hindi, Tamil, Telugu, Bengali — not just literal translation."
+            icon="अ"
+            title={t('vernacularEngine')}
+            description="Culturally-adapted translation into Hindi, Tamil, Telugu — not just literal translation."
           />
         </div>
       </div>

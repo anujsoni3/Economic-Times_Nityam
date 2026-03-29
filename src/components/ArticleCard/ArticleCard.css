@@ -30,6 +30,34 @@
   transition: transform var(--transition-slow);
 }
 
+.article-card-placeholder {
+  display: none;
+  position: absolute;
+  inset: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  background: linear-gradient(135deg, var(--bg-tertiary), var(--border-light));
+}
+
+.article-card-placeholder.visible {
+  display: flex;
+}
+
+.article-card-placeholder span {
+  font-size: 2rem;
+  opacity: 0.6;
+}
+
+.article-card-placeholder p {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .article-card:hover .article-card-image img {
   transform: scale(1.05);
 }

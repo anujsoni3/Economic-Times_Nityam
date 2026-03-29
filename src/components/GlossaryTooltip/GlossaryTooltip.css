@@ -1,0 +1,90 @@
+.glossary-tooltip-text p {
+  margin-bottom: var(--sp-4);
+  line-height: 1.8;
+}
+
+.glossary-highlight {
+  position: relative;
+  background: linear-gradient(to bottom, transparent 60%, rgba(255, 107, 53, 0.15) 60%);
+  padding: 0 2px;
+  cursor: help;
+  border-bottom: 1.5px dashed var(--et-orange);
+  transition: all var(--transition-fast);
+  font-weight: 600;
+}
+
+.glossary-highlight:hover {
+  background: rgba(255, 107, 53, 0.12);
+  border-bottom-color: var(--et-orange);
+}
+
+.glossary-popup {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-dark);
+  color: var(--text-inverse);
+  border-radius: var(--radius-md);
+  padding: var(--sp-3) var(--sp-4);
+  font-size: var(--fs-sm);
+  white-space: nowrap;
+  max-width: 320px;
+  width: max-content;
+  z-index: 100;
+  box-shadow: var(--shadow-xl);
+  animation: tooltipIn 0.15s ease;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.glossary-popup::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--bg-dark);
+}
+
+@keyframes tooltipIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.glossary-popup-term {
+  font-weight: 700;
+  color: var(--et-orange);
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.glossary-popup-arrow {
+  display: none;
+}
+
+.glossary-popup-translation {
+  font-weight: 600;
+  font-size: var(--fs-base);
+}
+
+.glossary-popup-explanation {
+  font-size: var(--fs-xs);
+  opacity: 0.8;
+  line-height: 1.4;
+  white-space: normal;
+  max-width: 280px;
+  margin-top: var(--sp-1);
+  padding-top: var(--sp-1);
+  border-top: 1px solid rgba(255,255,255,0.15);
+}

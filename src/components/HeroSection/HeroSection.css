@@ -38,6 +38,20 @@
   transition: transform var(--transition-slow);
 }
 
+.hero-image-placeholder {
+  display: none;
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  font-size: 5rem;
+  opacity: 0.15;
+}
+
+.hero-image-placeholder.visible {
+  display: flex;
+}
+
 .hero-main:hover .hero-main-image img {
   transform: scale(1.03);
 }
