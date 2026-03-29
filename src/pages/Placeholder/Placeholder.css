@@ -1,0 +1,46 @@
+.placeholder-page {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-8);
+}
+
+.placeholder-card {
+  text-align: center;
+  max-width: 500px;
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  padding: var(--sp-12);
+  box-shadow: var(--shadow-lg);
+  border: 2px dashed var(--et-blue-light);
+}
+
+.placeholder-icon {
+  font-size: 4rem;
+  margin-bottom: var(--sp-6);
+}
+
+.placeholder-title {
+  font-size: var(--fs-2xl);
+  font-weight: 800;
+  color: var(--et-blue);
+  margin-bottom: var(--sp-3);
+}
+
+.placeholder-desc {
+  font-size: var(--fs-base);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: var(--sp-6);
+}
+
+.placeholder-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--et-blue), #7c3aed);
+  color: white;
+  padding: var(--sp-2) var(--sp-6);
+  border-radius: var(--radius-full);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
