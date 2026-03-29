@@ -12,6 +12,17 @@ dist
 dist-ssr
 *.local
 
+# Secrets
+.env
+!.env.example
+
+# Large files
+*.zip
+.tools/
+__pycache__/
+*.pyc
+*.pyo
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
