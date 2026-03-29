@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+pydantic
+feedparser
+yfinance
+groq
+python-dotenv
+httpx
+langgraph
+langchain
+langchain-groq
+sse-starlette
