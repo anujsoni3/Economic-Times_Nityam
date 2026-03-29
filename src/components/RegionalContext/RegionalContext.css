@@ -1,0 +1,71 @@
+.regional-context {
+  margin-top: var(--sp-6);
+  border-radius: var(--radius-lg);
+  border: 2px solid;
+  overflow: hidden;
+  animation: fadeInUp 0.4s ease;
+}
+
+.regional-context-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--sp-4) var(--sp-5);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.regional-context-header:hover {
+  opacity: 0.8;
+}
+
+.regional-context-title {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-size: var(--fs-md);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.regional-icon {
+  font-size: var(--fs-xl);
+}
+
+.regional-toggle {
+  color: var(--text-tertiary);
+  font-size: var(--fs-sm);
+  transition: transform var(--transition-fast);
+}
+
+.regional-context-body {
+  padding: 0 var(--sp-5) var(--sp-5);
+  animation: fadeInUp 0.3s ease;
+}
+
+.regional-context-body p {
+  font-size: var(--fs-base);
+  line-height: 1.8;
+  color: var(--text-primary);
+  margin-bottom: var(--sp-4);
+}
+
+.regional-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  padding: var(--sp-1) var(--sp-3);
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: var(--radius-full);
+  letter-spacing: 0.3px;
+}
+
+.regional-badge i {
+  color: var(--et-red);
+}
