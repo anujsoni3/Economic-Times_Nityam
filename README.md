@@ -347,7 +347,3 @@ Language switching is global via `LanguageContext` — it affects:
 - Article translation (Vernacular Engine)
 
 ---
-
-## Built With ❤️ for ET GenAI Hackathon
-
-> © 2026 The Economic Times — ET GenAI Hackathon. Built for the future of news.
