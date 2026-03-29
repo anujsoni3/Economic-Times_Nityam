@@ -3,7 +3,7 @@
 > A full-stack AI-powered news platform built on top of The Economic Times, featuring live market data, multilingual support, LangGraph-based personalization, and Groq-powered AI briefings.
 
 ---
-
+# Live Demo: https://et-genai-platform.vercel.app/
 ## Table of Contents
 
 - [Overview](#overview)
