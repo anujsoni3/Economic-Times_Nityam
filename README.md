@@ -1,35 +1,31 @@
-# Economic Times — GenAI Hackathon Platform
+# ET GenAI Platform
 
-> A full-stack AI-powered news platform built on top of The Economic Times, featuring live market data, multilingual support, LangGraph-based personalization, and Groq-powered AI briefings.
+> An AI-native reimagination of The Economic Times — live RSS feeds, real-time market data, LangGraph personalization, and Groq-powered briefings with multilingual cultural adaptation.
 
----
-# Live Demo: https://et-genai-platform.vercel.app/
-## Table of Contents
-
-- [Overview](#overview)
-- [Architecture](#architecture)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-- [Environment Variables](#environment-variables)
-- [API Reference](#api-reference)
-- [AI Features Deep Dive](#ai-features-deep-dive)
-- [Multilingual Support](#multilingual-support)
-- [Screenshots](#screenshots)
+**Live Demo →** [et-genai-platform.vercel.app](https://et-genai-platform.vercel.app/)  
+**GitHub →** [anujsoni3/Economic-Times_Nityam](https://github.com/anujsoni3/Economic-Times_Nityam)
 
 ---
 
-## Overview
+## What this is
 
-This platform reimagines The Economic Times as an AI-native news experience. It pulls **live articles from ET RSS feeds**, fetches **real-time market data via Yahoo Finance**, and layers four distinct AI-powered features on top:
+The ET GenAI Platform layers four AI features on top of live Economic Times data, transforming passive news consumption into an interactive intelligence layer. It ingests 7 ET RSS feeds in parallel, pulls real-time market data via Yahoo Finance, and exposes a FastAPI backend that drives a React 19 frontend over REST and SSE.
 
-| Feature | Description |
-|---|---|
-| **News Navigator** | Enter any topic → get a structured AI briefing → ask follow-up Q&A |
-| **Story Arc** | Track ongoing business stories with timelines, sentiment, key players & watchlists |
-| **My ET** | LangGraph multi-agent personalized news feed based on your interests |
-| **Vernacular Engine** | Culturally-adapted translation into Hindi, Tamil, and Telugu |
+---
+
+## Features
+
+### News Navigator — AI briefing + grounded Q&A
+Enter any topic ("RBI Rate Cut", "Budget 2025") and receive a structured briefing synthesized by Groq Llama 3.3 70B across live ET articles. The briefing is divided into four sections: what happened, key players, impact, and what's next. Follow-up questions are answered strictly within the context of the generated briefing — no hallucination, full citations.
+
+### Story Arc — ongoing story tracker
+Articles are automatically grouped into story clusters using keyword matching, then visualized across four templates: a chronological timeline, a per-article sentiment breakdown, a key-players panel (named Indian business figures), and a watchlist of upcoming related events.
+
+### My ET — LangGraph personalized newsroom
+A 3-node LangGraph pipeline (`fetch → filter → format`) scores articles against your declared interests using Groq structured output (`FilterList`). If the LLM call fails, a lexical fallback keeps the feed alive. Agent execution logs stream to a terminal UI in real time over SSE.
+
+### Vernacular Engine — cultural adaptation, not literal translation
+Full article translation into Hindi, Tamil, and Telugu using language-specific `LANG_CONFIG` prompts. Each response includes a translated title, summary, body, a `regional_context` field with locally-relevant impact not present in the original, and a glossary of 3–5 financial terms. Brand names and numbers stay in English.
 
 ---
 
@@ -38,94 +34,92 @@ This platform reimagines The Economic Times as an AI-native news experience. It 
 ```
 ┌─────────────────────────────────────────────────────┐
 │                   React Frontend                     │
-│  Vite + React 19 + React Router v7 + Bootstrap Icons │
+│    Vite + React 19 + React Router v7 + Bootstrap     │
 └────────────────────┬────────────────────────────────┘
-                     │ REST + SSE
+                     │  REST + SSE
 ┌────────────────────▼────────────────────────────────┐
-│               FastAPI Backend (Python)               │
+│                FastAPI Backend                       │
 │                                                      │
-│  ┌──────────────┐  ┌──────────────┐  ┌───────────┐  │
-│  │  ET RSS Feed │  │  yfinance    │  │  Groq API │  │
-│  │  (7 feeds)   │  │  (7 symbols) │  │  Llama 3.3│  │
-│  └──────────────┘  └──────────────┘  └───────────┘  │
+│   ET RSS Feeds (7)    yfinance (7 symbols)           │
+│   ThreadPoolExecutor  In-memory cache (5 min TTL)    │
 │                                                      │
-│  ┌──────────────────────────────────────────────┐    │
-│  │         LangGraph Multi-Agent (My ET)         │    │
-│  │  Fetch Agent → Filter Agent → Format Agent   │    │
-│  └──────────────────────────────────────────────┘    │
+│   ┌──────────────────────────────────────────────┐   │
+│   │       LangGraph — My ET Agent Pipeline        │   │
+│   │   fetch_node → filter_node → format_node     │   │
+│   └──────────────────────────────────────────────┘   │
+│                                                      │
+│   Groq SDK (Llama 3.3 70B)   LangChain-Groq         │
+│   sse-starlette               python-dotenv          │
 └─────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Features
+## AI Pipeline Details
 
-### 1. Live News Feed
-- Pulls from 7 ET RSS categories: Top Stories, Markets, Industry, Tech, Wealth, Economy, Politics
-- Parallel fetching with `ThreadPoolExecutor` (7 workers)
-- In-memory cache (5 min TTL for articles, 1 min for market data)
-- Stable article IDs derived from MD5 hash of article URL
-- Automatic image extraction from ET article `msid` in URL
+### News Navigator flow
 
-### 2. Live Market Widget
-- Real-time data for SENSEX, NIFTY 50, BANK NIFTY, GOLD, SILVER, CRUDE OIL, USD/INR
-- Powered by `yfinance` — no API key required
-- Fallback to static JSON if Yahoo Finance is unavailable
+```
+User topic
+  → _fetch_live_articles()         # parallel RSS fetch
+  → _score_article_for_topic()     # token + phrase relevance scoring
+  → Groq Llama 3.3 70B briefing    # structured JSON: what_happened / key_players / impact / whats_next / sources
+  → follow-up Q&A                  # grounded against briefing context, with citations
+```
 
-### 3. News Navigator (AI Briefing + Q&A)
-- User enters any topic (e.g. "RBI Rate Cut", "Budget 2025")
-- Backend fetches and scores relevant articles using token + phrase matching
-- Groq (Llama 3.3 70B) synthesizes a structured briefing: What Happened / Key Players / Impact / What's Next
-- Follow-up Q&A strictly grounded in the generated briefing
-- Full fallback if Groq API is unavailable
+### My ET LangGraph pipeline
 
-### 4. Story Arc Tracker
-- Groups live articles into ongoing story clusters using keyword matching
-- Four visualization templates:
-  - **Timeline** — chronological article progression
-  - **Sentiment** — positive/negative/neutral scoring per article
-  - **Key Players** — named entity detection for known Indian business figures
-  - **Watch Next** — curated watchlist of upcoming events per story
+```
+State: { interests, language, raw_articles }
+  → [fetch_node]    logs article count, passes state
+  → [filter_node]   Groq FilterList structured output; lexical fallback on LLM failure
+  → [format_node]   finalizes feed, emits SSE "complete" event
+Final: { final_feed: [...articles with match_reason] }
+```
 
-### 5. My ET — Personalized Newsroom
-- LangGraph 3-node pipeline: `fetch_node → filter_node → format_node`
-- Groq structured output (`FilterList`) for intelligent article relevance scoring
-- Lexical fallback filter if LLM fails
-- Real-time SSE streaming of agent logs to a terminal UI in the browser
-- Supports all 4 languages for regional article fetching
+### Vernacular Engine prompt strategy
 
-### 6. Vernacular Engine
-- Full article translation + cultural adaptation into Hindi, Tamil, Telugu
-- Uses Groq Llama 3.3 70B with language-specific cultural prompts
-- Returns: translated title, summary, content, regional context, glossary (3–5 terms), adaptation notes
-- Batch translation endpoint for translating entire news feeds at once
-- 10-minute cache per article+language combination
+Each language has a dedicated `LANG_CONFIG` with script name, regional description, and cultural reference points (local schemes, idioms, markets). The prompt instructs the model to adapt culturally — not translate literally — while keeping brand names and numbers in English. Responses are cached per `article_id + language` for 10 minutes.
 
 ---
 
 ## Tech Stack
 
-### Frontend
-| Tool | Version | Purpose |
+**Frontend**
+
+| Tool | Version | Role |
 |---|---|---|
 | React | 19.x | UI framework |
-| Vite | 5.x | Build tool & dev server |
+| Vite | 5.x | Build + dev server |
 | React Router | v7 | Client-side routing |
 | Bootstrap Icons | 1.13 | Icon library |
 | Vitest | 4.x | Unit testing |
 
-### Backend
-| Tool | Purpose |
+**Backend**
+
+| Tool | Role |
 |---|---|
-| FastAPI | REST API framework |
+| FastAPI | REST API + SSE endpoints |
 | Uvicorn | ASGI server |
-| feedparser | ET RSS feed parsing |
-| yfinance | Live market data |
-| Groq SDK | LLM inference (Llama 3.3 70B) |
+| feedparser | ET RSS parsing |
+| yfinance | Live market data (no API key) |
+| Groq SDK | LLM inference — Llama 3.3 70B |
 | LangGraph | Multi-agent orchestration |
-| LangChain-Groq | LangGraph ↔ Groq integration |
+| LangChain-Groq | LangGraph ↔️ Groq integration |
 | sse-starlette | Server-Sent Events for My ET streaming |
-| python-dotenv | Environment variable management |
+
+---
+
+## Multilingual Support
+
+The app supports four languages end-to-end via a global `LanguageContext`. Switching language affects article fetching, UI strings, My ET personalization, and Vernacular Engine translation simultaneously.
+
+| Code | Language | Script | Article source |
+|---|---|---|---|
+| `en` | English | Latin | ET RSS feeds |
+| `hi` | Hindi | Devanagari | Google News RSS (Hindi) |
+| `ta` | Tamil | Tamil | Google News RSS (Tamil) |
+| `te` | Telugu | Telugu | Google News RSS (Telugu) |
 
 ---
 
@@ -135,8 +129,8 @@ This platform reimagines The Economic Times as an AI-native news experience. It 
 et-base/
 ├── backend/
 │   ├── main.py              # FastAPI app — all endpoints
-│   ├── my_et_agent.py       # LangGraph agent (Fetch → Filter → Format)
-│   ├── requirements.txt     # Python dependencies
+│   ├── my_et_agent.py       # LangGraph agent (fetch → filter → format)
+│   ├── requirements.txt
 │   └── data/
 │       ├── articles.json    # Static fallback articles
 │       └── market_data.json # Static fallback market data
@@ -144,86 +138,69 @@ et-base/
 │   ├── api.js               # All frontend API calls
 │   ├── App.jsx              # Router + route definitions
 │   ├── context/
-│   │   └── LanguageContext.jsx  # Global language state + i18n strings
+│   │   └── LanguageContext.jsx
 │   ├── components/
-│   │   ├── ArticleCard/         # Article preview card
-│   │   ├── ArticleTranslateBar/ # Language switcher on article page
-│   │   ├── FeatureSlot/         # AI feature entry point cards
-│   │   ├── Footer/              # Site footer
-│   │   ├── GlossaryTooltip/     # Hover tooltip for translated terms
-│   │   ├── HeroSection/         # Homepage hero with featured article
-│   │   ├── LanguageSwitcher/    # Global language toggle in navbar
-│   │   ├── MarketWidget/        # Live market ticker
-│   │   ├── Navbar/              # Top navigation bar
-│   │   ├── NewsFeed/            # Article grid
-│   │   └── RegionalContext/     # Regional impact panel on article page
-│   ├── layouts/
-│   │   └── MainLayout.jsx       # Shared layout wrapper
+│   │   ├── ArticleCard/
+│   │   ├── ArticleTranslateBar/
+│   │   ├── FeatureSlot/
+│   │   ├── GlossaryTooltip/
+│   │   ├── HeroSection/
+│   │   ├── LanguageSwitcher/
+│   │   ├── MarketWidget/
+│   │   ├── Navbar/
+│   │   ├── NewsFeed/
+│   │   └── RegionalContext/
 │   └── pages/
-│       ├── Home/                # Homepage
-│       ├── Article/             # Single article view with translation
-│       ├── Category/            # Category filtered feed
-│       ├── StoryArc/            # Story Arc tracker + 4 templates
-│       ├── NewsNavigator/       # AI briefing + Q&A
-│       ├── MyET/                # Personalized newsroom
-│       ├── NewsNavigator/       # AI briefing + Q&A
-│       └── Placeholder/         # Placeholder routes for future features
+│       ├── Home/
+│       ├── Article/
+│       ├── Category/
+│       ├── StoryArc/
+│       ├── NewsNavigator/
+│       └── MyET/
 ├── public/
-│   ├── favicon.svg
-│   └── icons.svg
 ├── index.html
 ├── package.json
-├── vite.config.js
-├── tsconfig.json
-└── .env                     # GROQ_API_KEY (not committed)
+└── vite.config.js
 ```
 
 ---
 
 ## Getting Started
 
-### Prerequisites
-- Node.js 18+
-- Python 3.11+
-- A [Groq API key](https://console.groq.com) (free tier available)
+**Prerequisites:** Node.js 18+, Python 3.11+, a [Groq API key](https://console.groq.com) (free tier works).
 
-### 1. Clone the repository
 ```bash
+# 1. Clone
 git clone https://github.com/anujsoni3/Economic-Times_Nityam.git
 cd Economic-Times_Nityam
-```
 
-### 2. Backend setup
-```bash
+# 2. Backend
 cd backend
 pip install -r requirements.txt
-```
 
-Create a `.env` file in the project root:
-```
-GROQ_API_KEY=your_groq_api_key_here
-```
+# 3. Create .env in project root
+echo "GROQ_API_KEY=your_key_here" > ../.env
 
-Start the backend:
-```bash
+# 4. Start backend
 uvicorn main:app --reload --port 8000
-```
 
-### 3. Frontend setup
-```bash
-# From project root
+# 5. Frontend (new terminal, project root)
 npm install
 npm run dev
+# → http://localhost:5173
 ```
 
-The app will be available at `http://localhost:5173`
+> Without `GROQ_API_KEY`: News Navigator and My ET fall back to lexical/deterministic responses. The Vernacular Engine returns a 500 error.
 
-### 4. Run tests
+---
+
+## Running Tests
+
 ```bash
-# Frontend tests
+# Frontend
 npm test
 
-# Backend tests
+# Backend
 cd backend && python -m pytest test_main.py
 ```
 
@@ -233,117 +210,76 @@ cd backend && python -m pytest test_main.py
 
 | Variable | Required | Description |
 |---|---|---|
-| `GROQ_API_KEY` | Yes (for AI features) | Groq API key for Llama 3.3 70B inference |
-
-> Without `GROQ_API_KEY`, the app still works — News Navigator and My ET fall back to deterministic/lexical responses, and the Vernacular Engine returns a 500 error.
+| `GROQ_API_KEY` | For AI features | Groq API key — Llama 3.3 70B inference |
 
 ---
 
 ## API Reference
 
-### Articles
+**Articles**
+
 | Method | Endpoint | Description |
 |---|---|---|
-| GET | `/api/articles` | All articles. Query: `?category=markets&lang=hi` |
-| GET | `/api/articles/{id}` | Single article by ID |
-| GET | `/api/categories` | List of all categories |
+| `GET` | `/api/articles` | All articles. Query: `?category=markets&lang=hi` |
+| `GET` | `/api/articles/{id}` | Single article by ID |
+| `GET` | `/api/categories` | List of all categories |
 
-### Market Data
+**Market Data**
+
 | Method | Endpoint | Description |
 |---|---|---|
-| GET | `/api/market-data` | Live SENSEX, NIFTY, GOLD, etc. |
+| `GET` | `/api/market-data` | Live SENSEX, NIFTY 50, BANK NIFTY, GOLD, SILVER, CRUDE OIL, USD/INR |
 
-### Story Arc
+**Story Arc**
+
 | Method | Endpoint | Description |
 |---|---|---|
-| GET | `/api/story-arc` | All detected story arcs (min 2 articles) |
-| GET | `/api/story-arc/{slug}` | Single story arc by slug |
+| `GET` | `/api/story-arc` | All detected story arcs (min 2 articles each) |
+| `GET` | `/api/story-arc/{slug}` | Single story arc by slug |
 
-### News Navigator
+**News Navigator**
+
 | Method | Endpoint | Body | Description |
 |---|---|---|---|
-| POST | `/api/news-navigator` | `{ topic, language }` | Generate AI briefing |
-| POST | `/api/news-navigator/ask` | `{ question, briefing, sources, articles }` | Follow-up Q&A |
+| `POST` | `/api/news-navigator` | `{ topic, language }` | Generate structured AI briefing |
+| `POST` | `/api/news-navigator/ask` | `{ question, briefing, sources, articles }` | Grounded follow-up Q&A |
 
-### Vernacular Engine
+**Vernacular Engine**
+
 | Method | Endpoint | Body | Description |
 |---|---|---|---|
-| POST | `/api/translate` | `{ title, summary, content, target_language }` | Translate single article |
-| POST | `/api/translate-batch` | `{ articles, target_language }` | Batch translate up to 60 articles |
-| GET | `/api/ui-translations` | — | UI string translations. Query: `?lang=hi` |
+| `POST` | `/api/translate` | `{ title, summary, content, target_language }` | Translate single article |
+| `POST` | `/api/translate-batch` | `{ articles, target_language }` | Batch translate up to 60 articles |
+| `GET` | `/api/ui-translations` | — | UI string translations. Query: `?lang=hi` |
 
-### My ET
+**My ET**
+
 | Method | Endpoint | Description |
 |---|---|---|
-| GET | `/api/my-et/stream` | SSE stream. Query: `?interests=AI,EV&lang=en` |
+| `GET` | `/api/my-et/stream` | SSE stream. Query: `?interests=AI,EV&lang=en` |
 
-### Health
+**Health**
+
 | Method | Endpoint | Description |
 |---|---|---|
-| GET | `/api/health` | Service health + data source status |
+| `GET` | `/api/health` | Service health + data source status |
 
 ---
 
-## AI Features Deep Dive
+## Graceful Degradation
 
-### News Navigator Flow
-```
-User Input (topic)
-      ↓
-_fetch_live_articles() — pulls all RSS feeds
-      ↓
-_score_article_for_topic() — token + phrase relevance scoring
-      ↓
-call_claude_briefing() → Groq Llama 3.3 70B
-      ↓
-Structured JSON: { what_happened, key_players, impact, whats_next, sources }
-      ↓
-User asks follow-up → call_claude_qa() → grounded answer + citations
-```
+Every AI feature has a defined fallback:
 
-### My ET LangGraph Pipeline
-```
-Initial State: { interests, language, raw_articles }
-      ↓
-[fetch_node]  — logs article count, passes state
-      ↓
-[filter_node] — Groq structured output (FilterList) scores each article
-             — Lexical fallback if LLM fails
-      ↓
-[format_node] — finalizes feed, emits SSE "complete" event
-      ↓
-Final State: { final_feed: [...articles with match_reason] }
-```
-
-### Vernacular Engine Prompt Strategy
-Each language has a dedicated `LANG_CONFIG` entry with:
-- Script name (Devanagari / Tamil / Telugu)
-- Target region description
-- Cultural notes (local markets, schemes, idioms, reference points)
-
-The prompt instructs the model to:
-1. Culturally adapt (not literally translate)
-2. Keep brand names and numbers in English
-3. Add a `regional_context` field with local impact not in the original article
-4. Generate a `glossary` of 3–5 financial terms with simple explanations
+| Feature | Primary | Fallback |
+|---|---|---|
+| News Navigator | Groq Llama 3.3 70B briefing | Deterministic structured summary |
+| My ET filter | Groq `FilterList` structured output | Lexical keyword matching |
+| Market data | Yahoo Finance (yfinance) | `data/market_data.json` |
+| Articles | ET RSS feeds | `data/articles.json` |
+| Vernacular Engine | Groq cultural adaptation | Returns 500 — no partial translation |
 
 ---
 
-## Multilingual Support
+## Built for
 
-The app supports 4 languages end-to-end:
-
-| Code | Language | Script | Regional RSS Source |
-|---|---|---|---|
-| `en` | English | Latin | ET RSS Feeds |
-| `hi` | Hindi | Devanagari | Google News RSS (Hindi) |
-| `ta` | Tamil | Tamil | Google News RSS (Tamil) |
-| `te` | Telugu | Telugu | Google News RSS (Telugu) |
-
-Language switching is global via `LanguageContext` — it affects:
-- Article fetching (switches RSS source)
-- UI strings (all labels, buttons, placeholders)
-- My ET personalization (fetches regional articles)
-- Article translation (Vernacular Engine)
-
----
+ET GenAI Hackathon — building an AI-native editorial layer on top of The Economic Times.
