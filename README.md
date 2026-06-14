@@ -2,8 +2,7 @@
 
 > An AI-native reimagination of The Economic Times — live RSS feeds, real-time market data, LangGraph personalization, and Groq-powered briefings with multilingual cultural adaptation.
 
-**Live Demo →** [et-genai-platform.vercel.app](https://et-genai-platform.vercel.app/)  
-**GitHub →** [anujsoni3/Economic-Times_Nityam](https://github.com/anujsoni3/Economic-Times_Nityam)
+**Live Demo :** [et-genai-platform.vercel.app](https://et-genai-platform.vercel.app/)  
 
 ---
 
